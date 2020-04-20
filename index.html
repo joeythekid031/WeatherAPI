@@ -67,7 +67,7 @@
                 }
             });
             $("#searchBtn").on("click", function (event) {
-                event.preventDefault;
+                // event.preventDefault;
 
                 var city = $("#searchCity").val().trim();
                 var cityURL = "api.openweathermap.org/data/2.5/weather?q=" + city + "&APPID=c66bf9e7d9b3b2feb04c3d9d2c74233b&units=imperial";
@@ -126,7 +126,7 @@
             });
 
             $("#btn").on("click", function (event) {
-                event.preventDefault;
+                // event.preventDefault;
 
                 var city = $("#searchCity").val().trim();
                 var cityURL = "api.openweathermap.org/data/2.5/weather?q=" + this.val().trim() + "&APPID=c66bf9e7d9b3b2feb04c3d9d2c74233b&units=imperial";
