@@ -36,10 +36,11 @@
                 <div class="jumbotron jumbotron-fluid">
                     <div class="container">
                         <h2 id="cityname"></h2>
+                        <div id=mainimage></div>
                         <p id="temp">Temperature: </p>
                         <p id="humidity">Humidity: </p>
                         <p id="windSpeed">Wind Speed: </p>
-                        <p id="uv">UV Index:</p>
+                        <!-- <p id="uv">UV Index:</p> -->
 
                     </div>
                 </div>
@@ -47,7 +48,7 @@
             <div class="col col-12 d-flex justify-content-end">
                 <div class="card">
                     <div class="card-deck" id="forcast">
-                        
+
                     </div>
                 </div>
 
@@ -66,13 +67,13 @@
                 }
             });
             $("#searchBtn").on("click", function (event) {
-                // event.preventDefault;
+                event.preventDefault;
 
                 var city = $("#searchCity").val().trim();
                 var cityURL = "api.openweathermap.org/data/2.5/weather?q=" + city + "&APPID=c66bf9e7d9b3b2feb04c3d9d2c74233b&units=imperial";
                 var cityForcastURL = "api.openweathermap.org/data/2.5/forecast?q=" + city + "&APPID=c66bf9e7d9b3b2feb04c3d9d2c74233b&units=imperial";
 
-    
+
                 $.ajax({
                     url: cityURL,
                     method: "GET",
@@ -80,15 +81,17 @@
                 })
 
                     .then(function (response) {
-                        // console.log(response)
+                        console.log(response)
+                        var mainIconIMG = $("<img>").attr("src", "http://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png")
                         $("#cityname").empty().append(response.name).append(moment().format(", dddd, MMMM Do YYYY"));
+                        $("#mainimage").empty().append(mainIconIMG)
                         $("#temp").empty().append("Temperature: " + response.main.temp + "°F");
                         $("#humidity").empty().append("Humidity: " + response.main.humidity);
                         $("#windSpeed").empty().append("Wind Speed: " + response.wind.speed);
                         //    $("#uv").append(response.) I cant find this in either of the two free apis that are able to search by city only the one call api that is only searchable by coordinates
                         localStorage.setItem("savedCity", response.name);
                         // console.log(savedCity) for some reason i am getting null back from local storage
-                        $("#searchedCities").append("<P>").text(alreadySearched);
+                        $("#searchedCities").append("<P>").attr("class", "btn").text(alreadySearched);
                     })
                 $.ajax({
                     url: cityForcastURL,
@@ -96,29 +99,89 @@
                     crossDomain: true
                 })
                     .then(function (response) {
-                        console.log(response)
-                        
+                        // console.log(response)
+
                         // var forcastweather = moment(response.list[20].sys.dt_txt).format("dddd, MMMM Do YYYY").toString()
-        
+
                         var i = 0;
                         $("#forcast").empty();
                         while (i < 35) {
                             var forcastdate = $("<h4>").text(moment(response.list[(i)].dt_txt).format("dddd, MMMM Do YYYY").toString());
+                            var iconIMG = $("<img>").attr("src", "http://openweathermap.org/img/wn/" + response.list[i].weather[0].icon + "@2x.png")
                             var forcastWeather = $("<h4>").text("Temperature: " + response.list[i].main.temp);
-                            var forcasthHumidity = $("<h4>").text("Humidity; " + response.list[i].main.humidity).append(response.list[i].weather.icon);
+                            var forcasthHumidity = $("<h4>").text("Humidity; " + response.list[i].main.humidity);
 
-                            var cardDiv = $("<div>").attr("class", "card float-right");
-                            var cardBody = $("<div>").attr("class", "card-body bg-primary").attr("style", "width: 12%;").append(forcastdate).append(forcastWeather).append(forcasthHumidity);
-                            
-    
+                            var cardDiv = $("<div>").attr("class", "card");
+                            var cardBody = $("<div>").attr("class", "card-body bg-primary").attr("style", "width: 12%;").append(forcastdate).append(iconIMG).append(forcastWeather).append(forcasthHumidity);
+
+
                             $("#forcast").append(cardDiv).append(cardBody);
-                                console.log(i)
-                            i = (i+8);
+                            // console.log(i)
+                            i = (i + 8);
 
-        
+
+                        }
+
+                    })
+            });
+
+            $("#btn").on("click", function (event) {
+                event.preventDefault;
+
+                var city = $("#searchCity").val().trim();
+                var cityURL = "api.openweathermap.org/data/2.5/weather?q=" + this.val().trim() + "&APPID=c66bf9e7d9b3b2feb04c3d9d2c74233b&units=imperial";
+                var cityForcastURL = "api.openweathermap.org/data/2.5/forecast?q=" + this.val().trim() + "&APPID=c66bf9e7d9b3b2feb04c3d9d2c74233b&units=imperial";
+
+
+                $.ajax({
+                    url: cityURL,
+                    method: "GET",
+                    crossDomain: true
+                })
+
+                    .then(function (response) {
+                        console.log(response)
+                        var mainIconIMG = $("<img>").attr("src", "http://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png")
+                        $("#cityname").empty().append(response.name).append(moment().format(", dddd, MMMM Do YYYY"));
+                        $("#mainimage").empty().append(mainIconIMG)
+                        $("#temp").empty().append("Temperature: " + response.main.temp + "°F");
+                        $("#humidity").empty().append("Humidity: " + response.main.humidity);
+                        $("#windSpeed").empty().append("Wind Speed: " + response.wind.speed);
+                        //    $("#uv").append(response.) I cant find this in either of the two free apis that are able to search by city only the one call api that is only searchable by coordinates
+                        localStorage.setItem("savedCity", response.name);
+                        // console.log(savedCity) for some reason i am getting null back from local storage
+                        $("#searchedCities").append("<P>").attr("id", "btn").text(alreadySearched);
+                    })
+
+                $.ajax({
+                    url: cityForcastURL,
+                    method: "GET",
+                    crossDomain: true
+                })
+                    .then(function (response) {
+                        // console.log(response)
+
+                        // var forcastweather = moment(response.list[20].sys.dt_txt).format("dddd, MMMM Do YYYY").toString()
+
+                        var i = 0;
+                        $("#forcast").empty();
+                        while (i < 35) {
+                            var forcastdate = $("<h4>").text(moment(response.list[(i)].dt_txt).format("dddd, MMMM Do YYYY").toString());
+                            var iconIMG = $("<img>").attr("src", "http://openweathermap.org/img/wn/" + response.list[i].weather[0].icon + "@2x.png")
+                            var forcastWeather = $("<h4>").text("Temperature: " + response.list[i].main.temp);
+                            var forcasthHumidity = $("<h4>").text("Humidity; " + response.list[i].main.humidity);
+
+                            var cardDiv = $("<div>").attr("class", "card");
+                            var cardBody = $("<div>").attr("class", "card-body bg-primary").attr("style", "width: 12%;").append(forcastdate).append(iconIMG).append(forcastWeather).append(forcasthHumidity);
+
+
+                            $("#forcast").append(cardDiv).append(cardBody);
+                            // console.log(i)
+                            i = (i + 8);
+
+
                         }
                         // $("#forcast").append(forcastCard);
-                        console.log(response.list[1].dt_txt)
                     })
             });
 
