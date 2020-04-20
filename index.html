@@ -27,38 +27,105 @@
                     <input type="text" id="searchCity" class="form-control" placeholder="Enter a city"
                         aria-label="city to search by" style="margin-left: 5px;">
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" id="button-addon2">search</button>
+                        <button class="btn btn-outline-secondary" type="button" id="searchBtn">search</button>
                     </div>
                 </div>
                 <div class="card" id="searchedCities"></div>
             </div>
-            <div class="col col-9">
+            <div class="col col-9 d-flex justify-content-start">
                 <div class="jumbotron jumbotron-fluid">
                     <div class="container">
-                        <h1 class="display-4">Fluid jumbotron</h1>
-                        <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>
+                        <h2 id="cityname"></h2>
+                        <p id="temp">Temperature: </p>
+                        <p id="humidity">Humidity: </p>
+                        <p id="windSpeed">Wind Speed: </p>
+                        <p id="uv">UV Index:</p>
+
                     </div>
                 </div>
             </div>
-            <div class="col col-9">
-                <div class="card" style="width: 100%;">
-                    <div class="card-body">
-                        <div class="card" style="width: 18rem;">
-                            <div class="card-body">
-                              <h5 class="card-title">Card title</h5>
-                              <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                              <a href="#" class="card-link">Card link</a>
-                              <a href="#" class="card-link">Another link</a>
-                            </div>
-                          </div>
+            <div class="col col-12 d-flex justify-content-end">
+                <div class="card">
+                    <div class="card-deck" id="forcast">
+                        
                     </div>
-                  </div>
+                </div>
+
             </div>
-
         </div>
-    </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 
+        <script>
+            var savedCities = ""
+            var alreadySearched = localStorage.getItem("savedCity");
+
+            jQuery.ajaxPrefilter(function (options) {
+                if (options.crossDomain && jQuery.support.cors) {
+                    options.url = 'https://cors-anywhere.herokuapp.com/' + options.url;
+                }
+            });
+            $("#searchBtn").on("click", function (event) {
+                // event.preventDefault;
+
+                var city = $("#searchCity").val().trim();
+                var cityURL = "api.openweathermap.org/data/2.5/weather?q=" + city + "&APPID=c66bf9e7d9b3b2feb04c3d9d2c74233b&units=imperial";
+                var cityForcastURL = "api.openweathermap.org/data/2.5/forecast?q=" + city + "&APPID=c66bf9e7d9b3b2feb04c3d9d2c74233b&units=imperial";
+
+    
+                $.ajax({
+                    url: cityURL,
+                    method: "GET",
+                    crossDomain: true
+                })
+
+                    .then(function (response) {
+                        // console.log(response)
+                        $("#cityname").empty().append(response.name).append(moment().format(", dddd, MMMM Do YYYY"));
+                        $("#temp").empty().append("Temperature: " + response.main.temp + "°F");
+                        $("#humidity").empty().append("Humidity: " + response.main.humidity);
+                        $("#windSpeed").empty().append("Wind Speed: " + response.wind.speed);
+                        //    $("#uv").append(response.) I cant find this in either of the two free apis that are able to search by city only the one call api that is only searchable by coordinates
+                        localStorage.setItem("savedCity", response.name);
+                        // console.log(savedCity) for some reason i am getting null back from local storage
+                        $("#searchedCities").append("<P>").text(alreadySearched);
+                    })
+                $.ajax({
+                    url: cityForcastURL,
+                    method: "GET",
+                    crossDomain: true
+                })
+                    .then(function (response) {
+                        console.log(response)
+                        
+                        // var forcastweather = moment(response.list[20].sys.dt_txt).format("dddd, MMMM Do YYYY").toString()
+        
+                        var i = 0;
+                        $("#forcast").empty();
+                        while (i < 35) {
+                            var forcastdate = $("<h4>").text(moment(response.list[(i)].dt_txt).format("dddd, MMMM Do YYYY").toString());
+                            var forcastWeather = $("<h4>").text("Temperature: " + response.list[i].main.temp);
+                            var forcasthHumidity = $("<h4>").text("Humidity; " + response.list[i].main.humidity).append(response.list[i].weather.icon);
+
+                            var cardDiv = $("<div>").attr("class", "card float-right");
+                            var cardBody = $("<div>").attr("class", "card-body bg-primary").attr("style", "width: 12%;").append(forcastdate).append(forcastWeather).append(forcasthHumidity);
+                            
+    
+                            $("#forcast").append(cardDiv).append(cardBody);
+                                console.log(i)
+                            i = (i+8);
+
+        
+                        }
+                        // $("#forcast").append(forcastCard);
+                        console.log(response.list[1].dt_txt)
+                    })
+            });
+
+
+
+
+        </script>
 </body>
 
 </html>
